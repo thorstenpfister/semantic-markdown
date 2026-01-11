@@ -1,0 +1,1 @@
+\*This looks like emphasis\*Use * for multiplication
