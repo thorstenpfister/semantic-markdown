@@ -47,7 +47,6 @@ git push origin vX.Y.Z
 # - Create distribution archives
 # - Generate checksums
 # - Extract release notes from CHANGELOG
-# - Generate Homebrew formula
 make release
 ```
 
@@ -55,7 +54,6 @@ The release workflow creates:
 - `dist/release/` - Platform-specific binaries
 - `dist/tarballs/` - Compressed archives with checksums
 - `dist/release-notes.md` - Extracted release notes
-- `dist/homebrew/semantic-md.rb` - Homebrew formula
 
 ### 4. Create GitHub Release
 
@@ -71,7 +69,22 @@ gh release create vX.Y.Z dist/tarballs/* \
   --notes-file dist/release-notes.md
 ```
 
-### 5. Update Homebrew Tap (Optional)
+### 5. Generate Homebrew Formula from GitHub Release
+
+**IMPORTANT:** Generate the formula AFTER creating the GitHub release to ensure checksums match:
+
+```bash
+# Download actual release artifacts from GitHub and generate formula
+make homebrew-formula-github
+```
+
+This target:
+- Downloads the release artifacts from GitHub
+- Calculates their checksums
+- Generates the formula with verified checksums
+- Ensures the formula matches what users will download
+
+### 6. Update Homebrew Tap (Optional)
 
 If you have a Homebrew tap repository:
 
@@ -92,7 +105,7 @@ brew tap thorstenpfister/tap
 brew install semantic-md
 ```
 
-### 6. Verify Installation
+### 7. Verify Installation
 
 Test that the release works:
 
@@ -112,7 +125,7 @@ brew uninstall semantic-md
 brew install thorstenpfister/tap/semantic-md
 ```
 
-### 7. Post-Release
+### 8. Post-Release
 
 1. Announce the release (social media, discussions, etc.)
 2. Monitor for issues
@@ -129,7 +142,8 @@ brew install thorstenpfister/tap/semantic-md
 | `make release-checksums` | Generate SHA256 checksums for all archives |
 | `make release-validate` | Validate all artifacts and verify checksums |
 | `make release-notes` | Extract release notes from CHANGELOG for current version |
-| `make homebrew-formula` | Generate Homebrew formula with checksums |
+| `make homebrew-formula` | Generate Homebrew formula with LOCAL checksums (testing only) |
+| `make homebrew-formula-github` | Generate Homebrew formula from GitHub release (PRODUCTION) |
 | `make homebrew-update TAP_DIR=...` | Update local Homebrew tap repository |
 | `make release` | Run complete release workflow (recommended) |
 | `make github-release` | Create GitHub release with artifacts (requires `gh`) |
@@ -325,14 +339,17 @@ cat dist/release-notes.md
 # 5. Create GitHub release
 make github-release
 
-# 6. Update Homebrew tap (if available)
+# 6. Generate Homebrew formula from GitHub release
+make homebrew-formula-github
+
+# 7. Update Homebrew tap (if available)
 make homebrew-update TAP_DIR=../homebrew-tap
 cd ../homebrew-tap
 git add Formula/semantic-md.rb
 git commit -m "Update semantic-md to v1.1.0"
 git push origin main
 
-# 7. Verify
+# 8. Verify
 brew update
 brew upgrade semantic-md
 semantic-md version  # Should show v1.1.0
