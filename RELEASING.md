@@ -74,8 +74,11 @@ gh release create vX.Y.Z dist/tarballs/* \
 **IMPORTANT:** Generate the formula AFTER creating the GitHub release to ensure checksums match:
 
 ```bash
-# Download actual release artifacts from GitHub and generate formula
+# Option 1: Generate formula only
 make homebrew-formula-github
+
+# Option 2: Generate formula AND update tap in one step
+make homebrew-formula-github TAP_DIR=/path/to/homebrew-tap
 ```
 
 This target:
@@ -83,16 +86,13 @@ This target:
 - Calculates their checksums
 - Generates the formula with verified checksums
 - Ensures the formula matches what users will download
+- Optionally copies to tap directory if TAP_DIR is provided
 
-### 6. Update Homebrew Tap (Optional)
+### 6. Commit and Push Homebrew Tap (if using TAP_DIR)
 
-If you have a Homebrew tap repository:
+If you used `TAP_DIR` in the previous step:
 
 ```bash
-# Update the formula in your local tap repository
-make homebrew-update TAP_DIR=/path/to/homebrew-tap
-
-# Commit and push to tap repository
 cd /path/to/homebrew-tap
 git add Formula/semantic-md.rb
 git commit -m "Update semantic-md to vX.Y.Z"
@@ -339,17 +339,15 @@ cat dist/release-notes.md
 # 5. Create GitHub release
 make github-release
 
-# 6. Generate Homebrew formula from GitHub release
-make homebrew-formula-github
-
-# 7. Update Homebrew tap (if available)
-make homebrew-update TAP_DIR=../homebrew-tap
+# 6. Generate Homebrew formula and update tap (if available)
+make homebrew-formula-github TAP_DIR=../homebrew-tap
 cd ../homebrew-tap
 git add Formula/semantic-md.rb
 git commit -m "Update semantic-md to v1.1.0"
 git push origin main
+cd -
 
-# 8. Verify
+# 7. Verify
 brew update
 brew upgrade semantic-md
 semantic-md version  # Should show v1.1.0

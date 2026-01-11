@@ -240,7 +240,7 @@ homebrew-formula: release-checksums ## Generate Homebrew formula file (LOCAL BUI
 	@echo "Only use this for local testing. For production, use 'make homebrew-formula-github'"
 
 # Generate Homebrew formula from GitHub release artifacts (PRODUCTION)
-homebrew-formula-github: ## Generate Homebrew formula from actual GitHub release (use after github-release)
+homebrew-formula-github: ## Generate Homebrew formula from GitHub release (optionally with TAP_DIR=/path/to/tap)
 	@echo "Generating Homebrew formula from GitHub release $(VERSION)..."
 	@if [ "$(VERSION)" = "dev" ] || echo "$(VERSION)" | grep -q dirty; then \
 		echo "Error: Not on a clean tagged commit"; \
@@ -323,7 +323,25 @@ homebrew-formula-github: ## Generate Homebrew formula from actual GitHub release
 	@echo "✅ Homebrew formula generated at $(DIST_DIR)/homebrew/semantic-md.rb"
 	@echo "✅ Checksums verified from actual GitHub release artifacts"
 	@echo ""
-	@echo "Next: make homebrew-update TAP_DIR=/path/to/homebrew-tap"
+	@if [ -n "$(TAP_DIR)" ]; then \
+		echo "Updating Homebrew tap at $(TAP_DIR)..."; \
+		if [ ! -d "$(TAP_DIR)" ]; then \
+			echo "Error: TAP_DIR '$(TAP_DIR)' does not exist"; \
+			exit 1; \
+		fi; \
+		mkdir -p $(TAP_DIR)/Formula; \
+		cp $(DIST_DIR)/homebrew/semantic-md.rb $(TAP_DIR)/Formula/; \
+		echo "✅ Formula copied to $(TAP_DIR)/Formula/semantic-md.rb"; \
+		echo ""; \
+		echo "Next steps:"; \
+		echo "  cd $(TAP_DIR)"; \
+		echo "  git add Formula/semantic-md.rb"; \
+		echo "  git commit -m 'Update semantic-md to $(VERSION)'"; \
+		echo "  git push origin main"; \
+	else \
+		echo "To update tap: make homebrew-formula-github TAP_DIR=/path/to/homebrew-tap"; \
+		echo "Or manually: make homebrew-update TAP_DIR=/path/to/homebrew-tap"; \
+	fi
 
 # Update Homebrew tap (requires tap repository to be cloned locally)
 homebrew-update: homebrew-formula ## Update local Homebrew tap repository

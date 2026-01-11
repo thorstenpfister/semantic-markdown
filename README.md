@@ -418,8 +418,8 @@ make release
 # 3. Create GitHub release (requires gh CLI)
 make github-release
 
-# 4. Update Homebrew tap (if you have a tap repository)
-make homebrew-update TAP_DIR=/path/to/homebrew-tap
+# 4. Generate formula and update Homebrew tap (if you have a tap repository)
+make homebrew-formula-github TAP_DIR=/path/to/homebrew-tap
 cd /path/to/homebrew-tap
 git add Formula/semantic-md.rb
 git commit -m "Update semantic-md to v1.0.0"
@@ -431,7 +431,7 @@ Individual release steps:
 - `make release-build` - Build binaries for all platforms
 - `make release-archives` - Create tar.gz/zip archives
 - `make release-checksums` - Generate SHA256 checksums
-- `make homebrew-formula` - Generate Homebrew formula
+- `make homebrew-formula-github` - Generate Homebrew formula from GitHub release
 
 See [RELEASING.md](RELEASING.md) for detailed release process documentation.
 
