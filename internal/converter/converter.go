@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"golang.org/x/net/html"
 	"github.com/thorstenpfister/semantic-markdown/types"
+	"golang.org/x/net/html"
 )
 
 // debugLog prints debug messages if debug mode is enabled

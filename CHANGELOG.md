@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-02-06
+
+### Changed
+- Consolidated duplicate linear-search helpers into shared O(1) map lookups
+- Replaced bubble sort in content detection with `slices.MaxFunc`
+- Replaced hand-rolled `parseInt` with `strconv.Atoi`
+- Conversion now works on a shallow copy of options to avoid mutating the caller's struct
+
+### Removed
+- Custom `min` function (shadowed Go 1.21+ built-in)
+- No-op `encodeURI` wrapper that round-tripped URLs unchanged
+- Dead containment-checking loop in `detectMainContent`
+- No-op `cobra.OnInitialize()` call
+
+### Fixed
+- Nil node from `parseCode` inside `<pre>` no longer leaks into the AST
+
 ## [1.0.0] - 2026-01-11
 
 ### Changed

@@ -13,16 +13,16 @@ import (
 )
 
 var (
-	inputFile     string
-	outputFile    string
-	urlSource     string
-	extractMain   bool
-	trackColumns  bool
-	metadataMode  string
-	refifyURLs    bool
-	domain        string
-	debugMode     bool
-	escapeMode    string
+	inputFile    string
+	outputFile   string
+	urlSource    string
+	extractMain  bool
+	trackColumns bool
+	metadataMode string
+	refifyURLs   bool
+	domain       string
+	debugMode    bool
+	escapeMode   string
 )
 
 var convertCmd = &cobra.Command{
@@ -103,11 +103,11 @@ func runConvert(cmd *cobra.Command, args []string) {
 
 	// Build conversion options
 	opts := &semanticmd.ConversionOptions{
-		WebsiteDomain:                domain,
-		ExtractMainContent:           extractMain,
-		RefifyURLs:                   refifyURLs,
-		EnableTableColumnTracking:    trackColumns,
-		Debug:                        debugMode,
+		WebsiteDomain:             domain,
+		ExtractMainContent:        extractMain,
+		RefifyURLs:                refifyURLs,
+		EnableTableColumnTracking: trackColumns,
+		Debug:                     debugMode,
 	}
 
 	// Parse metadata mode

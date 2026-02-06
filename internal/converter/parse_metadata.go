@@ -4,16 +4,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"golang.org/x/net/html"
 	"github.com/thorstenpfister/semantic-markdown/types"
+	"golang.org/x/net/html"
 )
-
-// NonSemanticTagNames lists meta tags to ignore
-var NonSemanticTagNames = []string{
-	"viewport",
-	"referrer",
-	"Content-Security-Policy",
-}
 
 // ExtractMetadata parses the <head> element for metadata.
 func ExtractMetadata(head *html.Node, mode types.MetaDataMode) *types.MetaDataNode {
@@ -47,8 +40,10 @@ func ExtractMetadata(head *html.Node, mode types.MetaDataMode) *types.MetaDataNo
 				if mode == types.MetaDataExtended {
 					meta.Twitter[strings.TrimPrefix(name, "twitter:")] = content
 				}
-			} else if name != "" && !containsString(NonSemanticTagNames, name) && content != "" {
-				meta.Standard[name] = content
+			} else if name != "" && content != "" {
+				if _, skip := nonSemanticTagNames[name]; !skip {
+					meta.Standard[name] = content
+				}
 			}
 		}
 	}
@@ -70,13 +65,4 @@ func ExtractMetadata(head *html.Node, mode types.MetaDataMode) *types.MetaDataNo
 	}
 
 	return meta
-}
-
-func containsString(slice []string, item string) bool {
-	for _, s := range slice {
-		if s == item {
-			return true
-		}
-	}
-	return false
 }

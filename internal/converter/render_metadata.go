@@ -3,9 +3,10 @@ package converter
 import (
 	"bytes"
 	"sort"
+	"strings"
 
-	"gopkg.in/yaml.v3"
 	"github.com/thorstenpfister/semantic-markdown/types"
+	"gopkg.in/yaml.v3"
 )
 
 // renderMetadata renders metadata and URL references as YAML frontmatter.
@@ -81,10 +82,7 @@ func writeMapSorted(buf *bytes.Buffer, m map[string]string, indent int) {
 	}
 	sort.Strings(keys)
 
-	prefix := ""
-	for i := 0; i < indent; i++ {
-		prefix += " "
-	}
+	prefix := strings.Repeat(" ", indent)
 
 	for _, key := range keys {
 		// Use yaml.Marshal for proper escaping

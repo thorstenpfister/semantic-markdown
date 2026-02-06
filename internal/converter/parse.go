@@ -3,8 +3,8 @@ package converter
 import (
 	"strings"
 
-	"golang.org/x/net/html"
 	"github.com/thorstenpfister/semantic-markdown/types"
+	"golang.org/x/net/html"
 )
 
 // Parse converts an HTML node tree to an AST.
@@ -59,7 +59,10 @@ func parseElementNode(node *html.Node, opts *types.ConversionOptions, indentLeve
 	case "s", "strike", "del":
 		return []types.Node{parseStrikethrough(node, opts, indentLevel)}
 	case "code":
-		return []types.Node{parseCode(node, opts, indentLevel)}
+		if n := parseCode(node, opts, indentLevel); n != nil {
+			return []types.Node{n}
+		}
+		return nil
 	case "pre":
 		return []types.Node{parsePreformatted(node, opts, indentLevel)}
 	case "blockquote":
@@ -97,8 +100,5 @@ func parseHeading(node *html.Node, opts *types.ConversionOptions, indentLevel in
 }
 
 func parseParagraph(node *html.Node, opts *types.ConversionOptions, indentLevel int) []types.Node {
-	content := parseNode(node, opts, indentLevel)
-	// For Sprint 1, just return the content directly
-	// Later we might want to wrap in a paragraph node
-	return content
+	return parseNode(node, opts, indentLevel)
 }

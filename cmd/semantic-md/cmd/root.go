@@ -39,10 +39,6 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
-func init() {
-	cobra.OnInitialize()
-}
-
 // exitWithError prints an error message and exits
 func exitWithError(msg string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, "Error: "+msg+"\n", args...)

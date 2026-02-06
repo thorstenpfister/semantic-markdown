@@ -1,10 +1,11 @@
 package converter
 
 import (
+	"strconv"
 	"strings"
 
-	"golang.org/x/net/html"
 	"github.com/thorstenpfister/semantic-markdown/types"
+	"golang.org/x/net/html"
 )
 
 // getAttribute gets an attribute value from an HTML node.
@@ -252,16 +253,13 @@ func parseSemanticHTML(node *html.Node, opts *types.ConversionOptions, indentLev
 	}
 }
 
-// parseInt parses a string to int, returns 0 on error
+// parseInt parses a string to int, returns 0 on error.
 func parseInt(s string) int {
-	var result int
-	for _, ch := range s {
-		if ch < '0' || ch > '9' {
-			return 0
-		}
-		result = result*10 + int(ch-'0')
+	val, err := strconv.Atoi(s)
+	if err != nil {
+		return 0
 	}
-	return result
+	return val
 }
 
 // generateColumnID generates a column ID from an index (0->A, 1->B, ..., 25->Z, 26->AA, etc.)

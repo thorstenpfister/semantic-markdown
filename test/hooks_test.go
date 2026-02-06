@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"golang.org/x/net/html"
 	semanticmd "github.com/thorstenpfister/semantic-markdown"
+	"golang.org/x/net/html"
 )
 
 func TestCustomElementProcessing(t *testing.T) {

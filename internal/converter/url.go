@@ -7,15 +7,6 @@ import (
 	"github.com/thorstenpfister/semantic-markdown/types"
 )
 
-// MediaSuffixes lists file extensions to treat as media
-var MediaSuffixes = []string{
-	"jpeg", "jpg", "png", "gif", "bmp", "tiff", "tif", "svg",
-	"webp", "ico", "avi", "mov", "mp4", "mkv", "flv", "wmv", "webm", "mpeg",
-	"mpg", "mp3", "wav", "aac", "ogg", "flac", "m4a", "pdf", "doc", "docx",
-	"ppt", "pptx", "xls", "xlsx", "txt", "css", "js", "xml", "json",
-	"html", "htm",
-}
-
 // RefifyURLs converts long URLs to reference format for token reduction.
 // Returns a map of reference IDs to original URL prefixes.
 // NOTE: Relative URLs are preserved as-is (not resolved to absolute).
@@ -89,7 +80,7 @@ func processURL(url string, refs map[string]string) string {
 			suffix = suffix[:idx]
 		}
 
-		if containsMedia(MediaSuffixes, strings.ToLower(suffix)) {
+		if _, isMedia := mediaSuffixes[strings.ToLower(suffix)]; isMedia {
 			// Split URL to get prefix and filename
 			urlParts := strings.Split(url, "/")
 			if len(urlParts) > 1 {
@@ -116,13 +107,4 @@ func addRefPrefix(prefix string, refs map[string]string) string {
 	ref := fmt.Sprintf("ref%d", len(refs))
 	refs[prefix] = ref
 	return ref
-}
-
-func containsMedia(slice []string, item string) bool {
-	for _, s := range slice {
-		if s == item {
-			return true
-		}
-	}
-	return false
 }

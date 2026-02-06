@@ -22,7 +22,7 @@ func Render(nodes []types.Node, opts *types.ConversionOptions) string {
 	// Render content
 	content := renderNodes(nodes, opts, escaper, 0)
 
-	// Apply smart unescaping (currently a no-op stub)
+	// Analyze context and apply escapes where needed (phase 2 of two-phase escaping)
 	content = string(escaper.UnescapeContent([]byte(content)))
 
 	buf.WriteString(content)

@@ -2,23 +2,11 @@ package converter
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 
 	"github.com/thorstenpfister/semantic-markdown/internal/escape"
 	"github.com/thorstenpfister/semantic-markdown/types"
 )
-
-// encodeURI encodes a URL similar to JavaScript's encodeURI
-func encodeURI(uri string) string {
-	// For now, use Go's URL encoding which is similar
-	// We might need to adjust this to match Node.js behavior exactly
-	u, err := url.Parse(uri)
-	if err != nil {
-		return uri
-	}
-	return u.String()
-}
 
 // isSimpleText checks if content contains only simple text nodes
 func isSimpleText(nodes []types.Node) bool {
@@ -33,19 +21,17 @@ func isSimpleText(nodes []types.Node) bool {
 func renderLink(n *types.LinkNode, opts *types.ConversionOptions, esc *escape.Escaper, indent int) string {
 	content := renderNodes(n.Content, opts, esc, indent)
 	content = strings.TrimSpace(content)
-	href := encodeURI(n.Href)
 
 	// Use []() for simple text, <a> for complex content
 	if isSimpleText(n.Content) {
-		return fmt.Sprintf("[%s](%s)", content, href)
+		return fmt.Sprintf("[%s](%s)", content, n.Href)
 	}
-	return fmt.Sprintf(`<a href="%s">%s</a>`, href, content)
+	return fmt.Sprintf(`<a href="%s">%s</a>`, n.Href, content)
 }
 
 func renderImage(n *types.ImageNode) string {
 	alt := strings.TrimSpace(n.Alt)
-	src := encodeURI(n.Src)
-	return fmt.Sprintf("![%s](%s)\n", alt, src)
+	return fmt.Sprintf("![%s](%s)\n", alt, n.Src)
 }
 
 func renderVideo(n *types.VideoNode) string {
@@ -54,9 +40,9 @@ func renderVideo(n *types.VideoNode) string {
 	//   ![Poster](poster)  // only if poster exists
 	//   Controls: true     // only if controls defined
 	var result strings.Builder
-	result.WriteString(fmt.Sprintf("![Video](%s)\n", encodeURI(n.Src)))
+	result.WriteString(fmt.Sprintf("![Video](%s)\n", n.Src))
 	if n.Poster != "" {
-		result.WriteString(fmt.Sprintf("![Poster](%s)\n", encodeURI(n.Poster)))
+		result.WriteString(fmt.Sprintf("![Poster](%s)\n", n.Poster))
 	}
 	if n.Controls {
 		result.WriteString(fmt.Sprintf("Controls: %v\n", n.Controls))

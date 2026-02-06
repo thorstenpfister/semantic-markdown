@@ -5,9 +5,9 @@ import (
 	"io"
 	"strings"
 
-	"golang.org/x/net/html"
 	"github.com/thorstenpfister/semantic-markdown/internal/converter"
 	"github.com/thorstenpfister/semantic-markdown/types"
+	"golang.org/x/net/html"
 )
 
 // ConvertString converts an HTML string to Markdown.
@@ -31,12 +31,7 @@ func ConvertReader(r io.Reader, opts *ConversionOptions) (string, error) {
 		return "", fmt.Errorf("failed to parse HTML: %w", err)
 	}
 
-	result, err := convertNodeWithValidation(doc, opts)
-	if err != nil {
-		return "", err
-	}
-
-	return result, nil
+	return convertNodeWithValidation(doc, opts)
 }
 
 // ConvertNode converts an html.Node tree to Markdown.
@@ -64,26 +59,32 @@ func ConvertNodeSafe(node *html.Node, opts *ConversionOptions) (string, error) {
 	return convertNodeWithValidation(node, opts)
 }
 
-// convertNodeWithValidation validates options and performs conversion
+// convertNodeWithValidation validates options and performs conversion.
+// Works on a shallow copy to avoid mutating the caller's options.
 func convertNodeWithValidation(node *html.Node, opts *ConversionOptions) (string, error) {
-	// Use default options if none provided
-	if opts == nil {
-		opts = &ConversionOptions{
-			EscapeMode: types.EscapeModeSmart,
-		}
+	var effective ConversionOptions
+	if opts != nil {
+		effective = *opts
 	}
 
-	// Validate options
-	if err := validateOptions(opts); err != nil {
+	// Validate and apply defaults
+	if err := validateOptions(&effective); err != nil {
 		return "", fmt.Errorf("invalid conversion options: %w", err)
 	}
 
 	// Initialize URLMap for refification
-	if opts.RefifyURLs && opts.URLMap == nil {
-		opts.URLMap = make(map[string]string)
+	if effective.RefifyURLs && effective.URLMap == nil {
+		effective.URLMap = make(map[string]string)
 	}
 
-	return converter.Convert(node, opts), nil
+	result := converter.Convert(node, &effective)
+
+	// Propagate URLMap back so callers can access the reference legend
+	if opts != nil && effective.RefifyURLs {
+		opts.URLMap = effective.URLMap
+	}
+
+	return result, nil
 }
 
 // validateOptions checks that conversion options are valid
@@ -96,13 +97,15 @@ func validateOptions(opts *ConversionOptions) error {
 		return fmt.Errorf("invalid IncludeMetaData value: %q (must be empty, 'basic', or 'extended')", opts.IncludeMetaData)
 	}
 
+	// Apply default escape mode
+	if opts.EscapeMode == "" {
+		opts.EscapeMode = types.EscapeModeSmart
+	}
+
 	// Validate escape mode
 	switch opts.EscapeMode {
-	case types.EscapeModeSmart, types.EscapeModeDisabled, "":
-		// Valid (empty defaults to smart)
-		if opts.EscapeMode == "" {
-			opts.EscapeMode = types.EscapeModeSmart
-		}
+	case types.EscapeModeSmart, types.EscapeModeDisabled:
+		// Valid
 	default:
 		return fmt.Errorf("invalid EscapeMode value: %q (must be 'smart' or 'disabled')", opts.EscapeMode)
 	}
